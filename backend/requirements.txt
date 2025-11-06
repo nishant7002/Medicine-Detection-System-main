@@ -1,0 +1,19 @@
+flask==3.0.0
+flask-cors==4.0.0
+pillow==10.1.0
+opencv-python==4.8.1.78
+numpy==1.24.3
+
+# OCR - Optical Character Recognition
+pytesseract==0.3.10  # Tesseract OCR wrapper
+
+# For AI/ML (choose one)
+# tensorflow==2.15.0  # For deep learning models
+# OR use lighter alternatives:
+scikit-learn==1.3.2  # For simpler ML tasks
+scikit-image==0.22.0  # For image processing
+
+# Database
+sqlalchemy==2.0.23  # ORM for database
+python-dotenv==1.0.0  # For environment variables
+

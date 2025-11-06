@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Medicine Detection System - Demo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="card" role="region" aria-label="Medicine Detection Demo">
+    <header>
+      <div class="logo">MD</div>
+      <div>
+        <h1>Medicine Detection System</h1>
+        <p class="muted">Upload a medicine image and click Detect to identify it using AI analysis.</p>
+      </div>
+    </header>
+    <div class="grid">
+      <div>
+        <div class="controls">
+          <div class="file-input">
+            <input id="fileInput" type="file" accept="image/*" capture="environment" />
+            <label for="fileInput" class="btn secondary">Choose Image</label>
+            <button class="btn" id="detectBtn" disabled>Detect Medicine</button>
+            <button class="btn danger" id="removeBtn" disabled>Remove Image</button>
+          </div>
+          <div id="status" class="muted">No image selected.</div>
+          <div class="results" aria-live="polite" id="results">
+            <div class="result-row">
+              <div class="label">Detected name</div>
+              <div class="value" id="resName">—</div>
+            </div>
+            <div class="result-row">
+              <div class="label">Description</div>
+              <div id="resDesc">—</div>
+            </div>
+            <div class="result-row">
+              <div class="label">Common uses</div>
+              <div id="resUses">—</div>
+            </div>
+            <div class="result-row">
+              <div class="label">Confidence</div>
+              <div id="resConf">—</div>
+            </div>
+          </div>
+          <footer>Demo only — does not perform real medical identification. Always consult professionals.</footer>
+        </div>
+      </div>
+      <aside>
+        <div class="preview" id="previewCard">
+          <div id="imagePlaceholder" class="placeholder">No image yet</div>
+          <img id="previewImg" alt="Selected medicine preview" style="display:none" />
+          <div id="previewMeta" class="muted">Image info will appear here.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
