@@ -21,7 +21,7 @@ const isGitHubPages = window.location.hostname.includes('github.io') ||
                        window.location.hostname.includes('githubpages.io');
 
 // Determine API URL based on environment
-let API_BASE_URL = 'http://localhost:5000/api';
+let API_BASE_URL = 'https://medicine-detection-system-main.onrender.com/';
 if (isGitHubPages) {
     // On GitHub Pages, we'll use demo mode (no backend available)
     API_BASE_URL = null;
