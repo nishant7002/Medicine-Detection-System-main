@@ -1,0 +1,36 @@
+# Render Build Command Options
+# Copy and paste one of these into Render Dashboard → Build Command
+
+# ==========================================
+# OPTION 1: Simple (No OCR - Guaranteed to Work)
+# ==========================================
+pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+
+# ==========================================
+# OPTION 2: With OCR (Try This First)
+# ==========================================
+sudo apt-get update && sudo apt-get install -y tesseract-ocr && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+
+# ==========================================
+# OPTION 3: With Error Handling (Continues if OCR Fails)
+# ==========================================
+apt-get update && apt-get install -y tesseract-ocr || echo "OCR install failed, continuing..." && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+
+# ==========================================
+# OPTION 4: Using Build Script
+# ==========================================
+chmod +x render-build-fixed.sh && bash render-build-fixed.sh
+
+# ==========================================
+# OPTION 5: Step by Step (Most Reliable)
+# ==========================================
+pip install --upgrade pip && pip install setuptools wheel && pip install -r requirements.txt
+
+# ==========================================
+# NOTES:
+# ==========================================
+# - Start with OPTION 1 to get app deployed quickly
+# - App works perfectly without OCR (uses filename detection)
+# - Add OCR later if needed
+# - If you get errors, check RENDER_BUILD_FIX.md for troubleshooting
+

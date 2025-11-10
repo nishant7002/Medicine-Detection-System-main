@@ -15,22 +15,29 @@
 
 ### Option 1: Install Tesseract via Build Command (Recommended)
 
+**⚠️ If you get errors, see `RENDER_BUILD_FIX.md` for troubleshooting!**
+
 **In Render Dashboard:**
 
 1. Go to your Web Service settings
 2. Find **"Build Command"** field
-3. Replace it with:
+3. Try this command (with sudo):
 
 ```bash
-apt-get update && apt-get install -y tesseract-ocr && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+sudo apt-get update && sudo apt-get install -y tesseract-ocr && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+```
+
+**If that fails, try without OCR first (app works fine):**
+```bash
+pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
 ```
 
 4. **Save** and **Redeploy**
 
 **What this does:**
-- Installs Tesseract OCR binary system-wide
+- Installs Tesseract OCR binary system-wide (if possible)
 - Then installs Python dependencies
-- OCR will be fully functional after deployment
+- OCR will be fully functional after deployment (if Tesseract installs successfully)
 
 ### Option 2: Use a Build Script
 
