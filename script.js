@@ -11,10 +11,67 @@ const resUses = document.getElementById('resUses');
 const resConf = document.getElementById('resConf');
 let selectedFile = null;
 
-// API Configuration - Change this to your backend URL
-const API_BASE_URL = 'http://localhost:5000/api';
-// Set to true to use demo mode (no backend required)
-const DEMO_MODE = false;
+// API Configuration - Automatically detects environment
+// For GitHub Pages: Uses demo mode (backend not available)
+// For local development: Tries to use localhost API, falls back to demo if unavailable
+// To use a custom backend URL, set it here: const API_BASE_URL = 'https://your-backend-url.com/api';
+
+// Detect if we're on GitHub Pages
+const isGitHubPages = window.location.hostname.includes('github.io') || 
+                       window.location.hostname.includes('githubpages.io');
+
+// Determine API URL based on environment
+let API_BASE_URL = 'http://localhost:5000/api';
+if (isGitHubPages) {
+    // On GitHub Pages, we'll use demo mode (no backend available)
+    API_BASE_URL = null;
+}
+
+// Auto-detect API availability
+let API_AVAILABLE = false;
+let API_CHECK_COMPLETE = false;
+let DEMO_MODE = isGitHubPages; // Start with demo mode on GitHub Pages
+
+// Check if API is available (async check on page load)
+async function checkAPIAvailability() {
+    if (isGitHubPages || !API_BASE_URL) {
+        DEMO_MODE = true;
+        API_CHECK_COMPLETE = true;
+        console.log('📦 Running in demo mode (GitHub Pages detected)');
+        return;
+    }
+    
+    try {
+        // Add timeout for health check
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+        
+        const response = await fetch(`${API_BASE_URL}/health`, {
+            method: 'GET',
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+            API_AVAILABLE = true;
+            DEMO_MODE = false;
+            console.log('✅ API is available - using backend');
+        } else {
+            throw new Error('API health check failed');
+        }
+    } catch (error) {
+        API_AVAILABLE = false;
+        DEMO_MODE = true;
+        console.log('⚠️ API not available - falling back to demo mode');
+        console.log('   (This is normal on GitHub Pages. Deploy backend separately to use API.)');
+    } finally {
+        API_CHECK_COMPLETE = true;
+    }
+}
+
+// Check API availability when page loads
+checkAPIAvailability();
 
 function niceBytes(bytes) {
     if (!bytes) return '';
@@ -67,14 +124,34 @@ function fakeDetect(file) {
 }
 
 async function detectMedicineWithAPI(file) {
+    // Wait for API check to complete if it's still running
+    if (!API_CHECK_COMPLETE && !isGitHubPages && API_BASE_URL) {
+        // Wait a bit for the health check to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // If API is not available or we're in demo mode, use demo detection
+    if (DEMO_MODE || !API_BASE_URL || (API_CHECK_COMPLETE && !API_AVAILABLE)) {
+        console.log('Using demo mode for detection');
+        return fakeDetect(file);
+    }
+    
+    // If we're not sure yet (API check not complete), try the API and fall back if it fails
     try {
         const formData = new FormData();
         formData.append('image', file);
         
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
         const response = await fetch(`${API_BASE_URL}/detect`, {
             method: 'POST',
-            body: formData
+            body: formData,
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
             throw new Error(`API error: ${response.statusText}`);
@@ -83,6 +160,9 @@ async function detectMedicineWithAPI(file) {
         const data = await response.json();
         
         if (data.success) {
+            // Mark API as available if we got a successful response
+            API_AVAILABLE = true;
+            DEMO_MODE = false;
             return {
                 item: {
                     name: data.medicine.name,
@@ -96,7 +176,17 @@ async function detectMedicineWithAPI(file) {
         }
     } catch (error) {
         console.error('API detection error:', error);
-        throw error;
+        // If API fails, mark as unavailable and fall back to demo mode
+        API_AVAILABLE = false;
+        DEMO_MODE = true;
+        API_CHECK_COMPLETE = true;
+        if (error.name === 'AbortError') {
+            console.log('API request timed out, using demo mode');
+        } else {
+            console.log('API request failed, falling back to demo mode');
+        }
+        // Automatically fall back to demo mode
+        return fakeDetect(file);
     }
 }
 detectBtn.addEventListener('click', async () => {
@@ -106,16 +196,18 @@ detectBtn.addEventListener('click', async () => {
     detectBtn.innerHTML = '<span class="spinner"></span> Detecting...';
     
     try {
-        let result;
-        
-        if (DEMO_MODE) {
-            status.textContent = 'Detecting — using demo mode...';
-            await new Promise(r => setTimeout(r, 1500));
-            result = fakeDetect(selectedFile);
+        // Show appropriate status message
+        if (DEMO_MODE || isGitHubPages) {
+            status.textContent = 'Detecting medicine (demo mode)...';
         } else {
             status.textContent = 'Analyzing image with AI...';
-            result = await detectMedicineWithAPI(selectedFile);
         }
+        
+        // Small delay for better UX
+        await new Promise(r => setTimeout(r, 500));
+        
+        // This function will automatically handle demo mode fallback
+        const result = await detectMedicineWithAPI(selectedFile);
         
         // Display results
         const { item, conf } = result;
@@ -123,7 +215,13 @@ detectBtn.addEventListener('click', async () => {
         resDesc.textContent = item.desc;
         resUses.textContent = item.uses;
         resConf.textContent = (parseFloat(conf) * 100).toFixed(0) + '%';
-        status.textContent = 'Detection complete.';
+        
+        // Update status with mode info
+        if (DEMO_MODE || isGitHubPages) {
+            status.textContent = 'Detection complete (demo mode).';
+        } else {
+            status.textContent = 'Detection complete.';
+        }
     } catch (error) {
         status.textContent = 'Error: ' + error.message;
         console.error('Detection failed:', error);
