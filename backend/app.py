@@ -356,10 +356,18 @@ def get_medicine_details(name):
 
 
 if __name__ == '__main__':
+    # Get port from environment variable (Render sets this) or default to 5000
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '0.0.0.0')
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    
     print("🚀 Starting Medicine Detection API...")
+    print(f"📍 Server running on {host}:{port}")
     print("📍 Endpoints:")
-    print("   - POST http://localhost:5000/api/detect")
-    print("   - GET  http://localhost:5000/api/medicines")
-    print("   - GET  http://localhost:5000/api/health")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print(f"   - POST http://{host}:{port}/api/detect")
+    print(f"   - GET  http://{host}:{port}/api/medicines")
+    print(f"   - GET  http://{host}:{port}/api/health")
+    print(f"   - OCR Available: {OCR_AVAILABLE}")
+    
+    app.run(debug=debug, host=host, port=port)
 

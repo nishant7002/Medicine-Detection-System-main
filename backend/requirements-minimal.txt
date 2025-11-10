@@ -1,0 +1,22 @@
+# Minimal requirements for Render deployment
+# Use this if the main requirements.txt fails to build
+
+# Core Flask dependencies
+flask==3.0.0
+flask-cors==4.0.0
+werkzeug==3.0.1
+
+# Image processing - minimal set
+pillow>=10.0.0
+numpy>=1.24.0,<1.27.0
+
+# OpenCV - try headless first, fallback to regular if needed
+# Headless version is preferred for server environments
+opencv-python-headless>=4.8.0
+
+# OCR (optional - app works without it)
+pytesseract>=0.3.10
+
+# Environment variables
+python-dotenv>=1.0.0
+
