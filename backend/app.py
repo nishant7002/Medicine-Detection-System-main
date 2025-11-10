@@ -7,15 +7,25 @@ import numpy as np
 from PIL import Image
 import re
 
-# Try to import pytesseract for OCR
+# Try to import pytesseract for OCR and check if Tesseract binary is available
+OCR_AVAILABLE = False
 try:
     import pytesseract
-    OCR_AVAILABLE = True
+    # Try to get Tesseract version to verify binary is available
+    try:
+        pytesseract.get_tesseract_version()
+        OCR_AVAILABLE = True
+        print("✅ OCR is available - Tesseract binary found")
+    except Exception as e:
+        OCR_AVAILABLE = False
+        print(f"⚠️ Warning: pytesseract installed but Tesseract binary not found: {e}")
+        print("   On Render: Add 'apt-get install -y tesseract-ocr' to build command")
+        print("   See ENABLE_OCR_RENDER.md for instructions")
 except ImportError:
     OCR_AVAILABLE = False
     print("⚠️ Warning: pytesseract not installed. OCR features will be limited.")
     print("   Install with: pip install pytesseract")
-    print("   And install Tesseract OCR from: https://github.com/UB-Mannheim/tesseract/wiki")
+    print("   And install Tesseract OCR binary on the system")
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to access this API

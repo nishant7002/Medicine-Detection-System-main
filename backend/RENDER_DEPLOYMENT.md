@@ -66,14 +66,32 @@ pip install --upgrade pip setuptools wheel && pip install flask==3.0.0 flask-cor
 
 ### OCR Not Working
 
-Tesseract OCR requires the Tesseract binary, which may not be available on Render by default.
+Tesseract OCR requires the Tesseract binary, which is NOT pre-installed on Render by default.
 
-**Options:**
-1. **Disable OCR** (recommended for Render) - App will work without it
-2. **Use OCR service** - Use an external OCR API instead
-3. **Install Tesseract** - Use a buildpack (complex)
+**✅ Solution: Enable OCR on Render**
 
-The app is designed to work without OCR - it will use filename-based detection as fallback.
+**Option 1: Install Tesseract via Build Command (Recommended)**
+
+In Render Dashboard → Build Command, use:
+```bash
+apt-get update && apt-get install -y tesseract-ocr && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+```
+
+This installs Tesseract OCR binary during build, enabling full OCR functionality.
+
+**Option 2: Use Build Script**
+
+1. Use the provided `render-build.sh` script
+2. In Render Dashboard, set Build Command to:
+   ```bash
+   chmod +x render-build.sh && ./render-build.sh
+   ```
+
+**Option 3: Work Without OCR**
+
+The app is designed to work without OCR - it will use filename-based detection as fallback. This is fine for demo purposes, but OCR provides better accuracy.
+
+**📖 See `ENABLE_OCR_RENDER.md` for detailed instructions on enabling OCR.**
 
 ### OpenCV Build Issues
 
